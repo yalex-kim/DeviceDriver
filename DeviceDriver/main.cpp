@@ -28,6 +28,7 @@ TEST(DeviceDriver, ReadFromHWPass) {
 	DeviceDriver driver{ &hardware };
 
 	EXPECT_CALL(hardware, read(_))
+		.Times(5)
 		.WillRepeatedly(Return(0xAB));
 
 	try {
@@ -39,6 +40,40 @@ TEST(DeviceDriver, ReadFromHWPass) {
 		FAIL() << "Exception thrown: " << e.what();
 	}
 }
+
+TEST(DeviceDriver, WriteHWAlreadyWrittenException) {
+	MockFlashMemoryDevice hardware;
+	DeviceDriver driver{ &hardware };
+
+	EXPECT_CALL(hardware, read(_))
+		.WillRepeatedly(Return(0xDD));
+
+	EXPECT_CALL(hardware, write(_, _))
+		.WillRepeatedly(Return());
+
+	EXPECT_THROW(driver.write(0x1, 0xDD), std::runtime_error);
+
+}
+
+
+TEST(DeviceDriver, WriteHWPass) {
+	MockFlashMemoryDevice hardware;
+	DeviceDriver driver{ &hardware };
+
+	EXPECT_CALL(hardware, read(_))
+		.WillRepeatedly(Return(0xFF));
+
+	EXPECT_CALL(hardware, write(_, _))
+		.WillRepeatedly(Return());
+
+	try {
+		driver.write(0x1, 0xAB);
+	} 
+	catch (const std::exception& e) {
+		FAIL() << "Exception thrown: " << e.what();
+	}
+}
+
 
 int main() {
 	::testing::InitGoogleMock();
