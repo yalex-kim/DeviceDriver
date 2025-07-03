@@ -11,10 +11,13 @@ class MockFlashMemoryDevice : public FlashMemoryDevice {
 };
 
 
-TEST(DeviceDriver, ReadFromHWFailException) {
+class DeviceDriverTest : public ::testing::Test {
+public:
 	MockFlashMemoryDevice hardware;
 	DeviceDriver driver{ &hardware };
+};
 
+TEST_F(DeviceDriverTest, ReadFromHWFailException) {
 	EXPECT_CALL(hardware, read(_))
 		.WillOnce(Return(0xAB))
 		.WillRepeatedly(Return(0xAC));
@@ -23,10 +26,7 @@ TEST(DeviceDriver, ReadFromHWFailException) {
 	EXPECT_THROW(driver.read(0xFF), std::runtime_error);
 }
 
-TEST(DeviceDriver, ReadFromHWPass) {
-	MockFlashMemoryDevice hardware;
-	DeviceDriver driver{ &hardware };
-
+TEST_F(DeviceDriverTest, ReadFromHWPass) {
 	EXPECT_CALL(hardware, read(_))
 		.Times(5)
 		.WillRepeatedly(Return(0xAB));
@@ -41,10 +41,7 @@ TEST(DeviceDriver, ReadFromHWPass) {
 	}
 }
 
-TEST(DeviceDriver, WriteHWAlreadyWrittenException) {
-	MockFlashMemoryDevice hardware;
-	DeviceDriver driver{ &hardware };
-
+TEST_F(DeviceDriverTest, WriteHWAlreadyWrittenException) {
 	EXPECT_CALL(hardware, read(_))
 		.WillRepeatedly(Return(0xDD));
 
@@ -55,11 +52,7 @@ TEST(DeviceDriver, WriteHWAlreadyWrittenException) {
 
 }
 
-
-TEST(DeviceDriver, WriteHWPass) {
-	MockFlashMemoryDevice hardware;
-	DeviceDriver driver{ &hardware };
-
+TEST_F(DeviceDriverTest, WriteHWPass) {
 	EXPECT_CALL(hardware, read(_))
 		.WillRepeatedly(Return(0xFF));
 
