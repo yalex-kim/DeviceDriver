@@ -6,28 +6,27 @@ DeviceDriver::DeviceDriver(FlashMemoryDevice* hardware) : m_hardware(hardware)
 
 int DeviceDriver::read(long address)
 {
-    // TODO: implement this method properly
-    return (int)(m_hardware->read(address));
+	int firstData = (int)(m_hardware->read(address));
+	CheckReadDataValidity(address, firstData);
+    return firstData;
 }
 
 void DeviceDriver::write(long address, int data)
 {
-    // TODO: implement this method
-    m_hardware->write(address, (unsigned char)data);
-}#include "device_driver.h"
-
-DeviceDriver::DeviceDriver(FlashMemoryDevice * hardware) : m_hardware(hardware)
-{
+	int readData = (int)(m_hardware->read(address));
+	if (readData != 0xFF) {
+		throw WriteFailException();
+	}
+	m_hardware->write(address, (unsigned char)data);
 }
 
-int DeviceDriver::read(long address)
-{
-    // TODO: implement this method properly
-    return (int)(m_hardware->read(address));
-}
 
-void DeviceDriver::write(long address, int data)
+void DeviceDriver::CheckReadDataValidity(long address, int firstData)
 {
-    // TODO: implement this method
-    m_hardware->write(address, (unsigned char)data);
+	for (int i = 0; i < READ_CHECK_COUNT; ++i) {
+		int data = (int)(m_hardware->read(address));
+		if (data != firstData) {
+			throw ReadFailException();
+		}
+	}
 }
