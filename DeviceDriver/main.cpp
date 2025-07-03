@@ -22,7 +22,6 @@ TEST_F(DeviceDriverTest, ReadFromHWFailException) {
 		.WillOnce(Return(0xAB))
 		.WillRepeatedly(Return(0xAC));
 
-	// custom exception type is expected : readFailException
 	EXPECT_THROW(driver.read(0xFF), std::runtime_error);
 }
 
