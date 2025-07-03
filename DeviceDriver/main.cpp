@@ -22,7 +22,7 @@ TEST_F(DeviceDriverTest, ReadFromHWFailException) {
 		.WillOnce(Return(0xAB))
 		.WillRepeatedly(Return(0xAC));
 
-	EXPECT_THROW(driver.read(0xFF), std::runtime_error);
+	EXPECT_THROW(driver.read(0xFF), ReadFailException);
 }
 
 TEST_F(DeviceDriverTest, ReadFromHWPass) {
@@ -30,14 +30,8 @@ TEST_F(DeviceDriverTest, ReadFromHWPass) {
 		.Times(5)
 		.WillRepeatedly(Return(0xAB));
 
-	try {
-		int data = driver.read(0xFF);
-		EXPECT_EQ(0xAB, data);
-		
-	} 
-	catch (const std::exception& e) {
-		FAIL() << "Exception thrown: " << e.what();
-	}
+	int data = driver.read(0xFF);
+	EXPECT_EQ(0xAB, data);
 }
 
 TEST_F(DeviceDriverTest, WriteHWAlreadyWrittenException) {
@@ -47,7 +41,7 @@ TEST_F(DeviceDriverTest, WriteHWAlreadyWrittenException) {
 	EXPECT_CALL(hardware, write(_, _))
 		.WillRepeatedly(Return());
 
-	EXPECT_THROW(driver.write(0x1, 0xDD), std::runtime_error);
+	EXPECT_THROW(driver.write(0x1, 0xDD), WriteFailException);
 
 }
 
@@ -58,12 +52,7 @@ TEST_F(DeviceDriverTest, WriteHWPass) {
 	EXPECT_CALL(hardware, write(_, _))
 		.WillRepeatedly(Return());
 
-	try {
-		driver.write(0x1, 0xAB);
-	} 
-	catch (const std::exception& e) {
-		FAIL() << "Exception thrown: " << e.what();
-	}
+	driver.write(0x1, 0xAB);
 }
 
 
